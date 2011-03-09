@@ -1,0 +1,51 @@
+%html
+  <link rel="stylesheet" href="/screen.css" type="text/css" media="screen, projection">
+  <link rel="stylesheet" href="/print.css" type="text/css" media="print">  
+  <link rel="stylesheet" href="/style.css" type="text/css" media="screen, projection, print">  
+  <!--[if lt IE 8]><link rel="stylesheet" href="/ie.css" type="text/css" media="screen, projection"><![endif]-->
+  %body
+    .container
+      %div#banner{:class => 'span-20'}
+        &nbsp;  
+      %div#login{:class => 'span-4 last'}
+        %ul.login
+          %li.border Welcome Guest
+          %li
+            %a{:href => '/login'} Login
+      %div#content{:class=>'span-17 prepend-1 border'}
+        %div#menu{:class => 'span-6 prepend-10 last'}
+          %ul.nav
+            %li.active
+              %a{:href => '/'} Home
+            %li
+              %a{:href => '/links'} Links
+            %li
+              %a{:href => '/archives'} Archives
+        =yield
+      %div#rightbar{:class => 'span-6 last quiet'}
+        %h3 About
+        %p.about
+          Authored by Leonard Garvey founder of Bottled Goodness and lead developer of rentle.com.au. Leonard is a passionate web developer constantly learning new and wonderful things.
+        %h3 Tag Cloud
+        .cloud
+
+    %div#bottom
+      .container
+        %div{:class => 'span-6 append-12'}
+          %ul.bottommenu
+            %li
+              %a{:href=>'/'} Home
+            %li
+              %a{:href=>'/'} About  
+            %li
+              %a{:href=>'/'} Archives  
+            %li
+              %a{:href=>'/article/add'} Add an Article
+        %div{:class => 'span-6 last'}
+          %ul.bottommenu
+            %li
+              %a{:href=>''} Follow on Twitter
+            %li
+              %a{:href=>'http://www.sinatrarb.com'} Powered by Sinatra
+            %li
+              %a{:href=>'http://wwww.mongodb.org'} MongoDB

@@ -1,0 +1,25 @@
+.title
+  %h1.title #{@article.title}
+.body
+  %p.date #{@article.date}
+  %p.body #{@article.text}
+.comment
+  %h3.comments{:style => 'text-align: right;'} Add a comment
+  %form{:method=>'post',:action=>"/article/#{@article.id}/comment"}
+    %div{:class=>'span-5 prepend-12 right'}
+      %input{:type=>'text',:name=>'author', :style => 'padding:0px;margin:0px;'}
+      %label{:for=>'author'} Author
+    %div{:class=>'span-5 prepend-12 right'}
+      %input{:type=>'text',:name=>'author', :style => 'padding:0px;margin:0px;'}
+      %label{:for=>'author'} E-mail
+    %div{:class=>'span-10 last prepend-7'}  
+      %textarea{:name=>'comment'}
+    %div{:class=>'span-2 prepend-15 last right'}
+      %button{:type=>'submit'} Submit
+%div#comments{:class => 'span-17 last'}
+  %hr
+  - @article.comments.each do |@comment|
+    .comment_body
+      %h3.comment_author #{@comment.author} posted at #{@comment.date}
+      %p.comment_body #{@comment.text}
+

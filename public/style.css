@@ -1,0 +1,57 @@
+a:link {text-decoration: none}
+a:visited {text-decoration: none}
+a:active {text-decoration: none}
+a:hover {text-decoration: underline;}
+ul.login {
+  display: inline;
+  list-style: none;
+}
+ul.login li {
+  display: inline;
+  color: #666;
+}
+ul.nav {
+  display: inline;
+  list-style: none;
+}
+
+
+ul.nav li {
+  display: inline;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  color: #666;
+  font-size: 20px;
+}
+ul.nav li a {
+  color: #666;
+  font-size: 20px;
+}
+
+ul.nav li a:hover {
+  border-bottom: 10px solid black;
+  color: black;
+  text-decoration: none;
+}
+
+ul.nav li.active a {
+  border-bottom: 10px solid #666;
+  color: black;
+}
+
+div#bottom {
+  background-color: black;
+  color: white;
+  min-height: 100px;
+}
+ul.bottommenu {
+  list-style:none;
+}
+ul.bottommenu li {
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  color: white;
+  font-size: 16px;
+}
+ul.bottommenu li a {
+  color: white;
+  font-size: 16px;
+}

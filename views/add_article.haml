@@ -1,0 +1,9 @@
+%form{:method => 'post', :action => '/article/add'}
+  %label.title{:for => 'title'} Title
+  %input.title{:type => 'text', :name => 'title'}
+  %br
+  %label.text{:for => 'text'} Text
+  %textarea.text{:name => 'text', :cols => 80, :rows => 10}
+  %br
+  %input{:type => 'submit'}
+
