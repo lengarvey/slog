@@ -1,6 +1,6 @@
 -@articles.each do |@article|
-  %a{:href=>"/article/#{@article.id}"}
-    %h2#title{:class=>'span-11 prepend-5'} #{@article.title}
+  %h2#title{:class=>'span-11 prepend-5'} 
+    %a{:href=>"/article/#{@article.id}"} #{@article.title}
   %div{:class => 'posted quiet span-5'}
     =@article.date
     =@article.author

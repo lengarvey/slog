@@ -6,7 +6,7 @@
   %body
     .container
       %div#banner{:class => 'span-20'}
-        &nbsp;  
+        %img{:src => '/bg.jpg'}  
       %div#login{:class => 'span-4 last'}
         %ul.login
           %li.border Welcome Guest
@@ -15,11 +15,11 @@
       %div#content{:class=>'span-17 prepend-1 border'}
         %div#menu{:class => 'span-6 prepend-10 last'}
           %ul.nav
-            %li.active
+            %li{:class=>"#{@home}"}
               %a{:href => '/'} Home
-            %li
+            %li{:class=>"#{@links}"}
               %a{:href => '/links'} Links
-            %li
+            %li{:class=>"#{@archives}"}
               %a{:href => '/archives'} Archives
         =yield
       %div#rightbar{:class => 'span-6 last quiet'}

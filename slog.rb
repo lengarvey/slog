@@ -62,6 +62,7 @@ post '/article/:id/comment' do |id|
 end
 get '/' do
   @articles = Article.sort(:date.desc).all()
+  @home = "active"
   haml :index
 end
 
