@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'haml'
-require 'lib/partial/partials.rb'
+require 'lib/partials.rb'
 require 'mongo_mapper'
 
 MongoMapper.database = 'slog'
