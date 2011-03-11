@@ -5,13 +5,19 @@
   <!--[if lt IE 8]><link rel="stylesheet" href="/ie.css" type="text/css" media="screen, projection"><![endif]-->
   %body
     .container
-      %div#banner{:class => 'span-20'}
+      %div#banner{:class => 'span-18'}
         %img{:src => '/bg.jpg'}  
-      %div#login{:class => 'span-4 last'}
-        %ul.login
-          %li.border Welcome Guest
-          %li
-            %a{:href => '/login'} Login
+      %div#login{:class => 'span-6 last'}
+        - if @logged_in then
+          %ul.login
+            %li.border Welcome #{@logged_in.name}
+            %li
+              %a{:href => '/logout'} Logout
+        - else
+          %ul.login
+            %li.border Welcome Guest
+            %li
+              %a{:href => '/auth/facebook'} Login
       %div#content{:class=>'span-17 prepend-1 border'}
         %div#menu{:class => 'span-6 prepend-10 last'}
           %ul.nav
@@ -38,9 +44,10 @@
             %li
               %a{:href=>'/'} About  
             %li
-              %a{:href=>'/'} Archives  
-            %li
-              %a{:href=>'/article/add'} Add an Article
+              %a{:href=>'/'} Archives 
+            - if @logged_in and @logged_in.role == "admin" then
+              %li
+                %a{:href=>'/article/add'} Add an Article
         %div{:class => 'span-6 last'}
           %ul.bottommenu
             %li

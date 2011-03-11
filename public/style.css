@@ -2,6 +2,9 @@ a:link {text-decoration: none}
 a:visited {text-decoration: none}
 a:active {text-decoration: none}
 a:hover {text-decoration: underline;}
+div.comment {
+  border-top: 10px solid red;
+}
 ul.login {
   display: inline;
   list-style: none;

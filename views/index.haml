@@ -1,10 +1,11 @@
--@articles.each do |@article|
-  %h2#title{:class=>'span-11 prepend-5'} 
-    %a{:href=>"/article/#{@article.id}"} #{@article.title}
-  %div{:class => 'posted quiet span-5'}
-    =@article.date
-    =@article.author
-  %div{:class => 'span-11'}
-    %p.extract #{@article.text}
+-if @articles
+  -@articles.each do |article|
+    %h2#title{:class=>'span-11 prepend-5'} 
+      %a{:href=>"/article/#{article.id}"} #{article.title}
+    %div{:class => 'posted quiet span-5'}
+      =article.date
+      =article.author
+    %div{:class => 'span-11'}
+      %p.extract #{article.html_text}
 
 
