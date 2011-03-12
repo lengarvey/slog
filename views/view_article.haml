@@ -3,6 +3,9 @@
 %div#body{:class => 'span-16 last'}
   %p.date #{@article.date}
   %p.body #{@article.html_text}
+  %div#fulltags{:class => 'span-16 last'}
+    %h3{:class => 'quiet'} Tagged with...
+    =@article.get_tag_links
 %div#comment{:class => 'span-17 last comment'}
   %div#disqus_thread
   %script{:type=>'text/javascript'}

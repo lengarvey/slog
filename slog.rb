@@ -7,6 +7,7 @@ require 'omniauth'
 require 'sinatra/session'
 require 'rack/gridfs'
 require 'joint'
+require 'hpricot'
 
 #use Rack::GridFS, :hostname => 'localhost', :port => 27017, :database => 'slog', :prefix => 'gridfs'
 
@@ -39,29 +40,60 @@ class User
 
   key :role, String
 end
-
+class Link
+  include MongoMapper::Document
+  key :url, String
+  key :text, String
+  key :article_id, String
+  key :article, String
+end
 class Article
   include MongoMapper::Document
 
   key :title, String
   key :text, String
   key :date, Time
-  def nice_date
-    self.date.strftime("%Y-%m-%d");
-  end
   key :author, String # id of user
   key :author_image_url, String
-  def get_author_image
-    return self.author_image_url || "empty_user_image.jpg"
-  end
   key :tags, Array
+  key :extract, String
+  def extract_or_text
+    extract || text
+  end
+  def get_tag_links
+    links = ""
+    self.tags.each do |tag|
+      links += "<a href='http://bottledup.net/tag/" +tag+"'>#{tag}</a> "
+    end
+    return links
+  end
   def first_three_tags
-    return self.tags[0..2].join(',')
+    links = ""
+    self.tags[0..2].each do |tag|
+      links += "<a href='http://bottledup.net/tag/" +tag+"'>#{tag}</a> "
+    end
+    return links
   end
   def html_text
     text
   end
+  def nice_date
+    self.date.strftime("%Y-%m-%d");
+  end
+  def get_author_image
+    return self.author_image_url || "empty_user_image.jpg"
+  end
+  
+  
 end
+class TagCloud
+  def self.build
+    map ="function(){this.tags.forEach(function(tag){emit(tag, 1);});}"
+    reduce = "function(prev, current) {var count = 0;for (index in current) {count += current[index];}return count;}"
+    Article.collection.map_reduce(map, reduce, :out => {:merge => 'tag_mr_results'})
+  end
+end
+
 
 helpers Sinatra::Partials
 set :session_fail, '/auth/facebook'
@@ -112,6 +144,15 @@ get '/auth/:provider/callback' do
   redirect '/' if @user
 
 end
+get '/tag/:tag' do |tag|
+  @tags = TagCloud.build.find()
+  @thash = []
+  @tags.each do |tag|
+    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  end
+  @articles = Article.where(:tags => tag).all()
+  haml :index
+end
 
 get '/article/add' do
   redirect '/' unless @logged_in.role == "admin"
@@ -122,11 +163,33 @@ post '/article/add' do
   @article = Article.new
   @article.title = params[:title]
   @article.text = params[:text]
+  doc = Hpricot(@article.text)
+  index = 1
+  extract = ""
+  doc.search("//p").each do |element|
+    extract += element.to_html
+    break if index == 2
+    index += 1
+  end
+  @article.extract = extract
+  
+
   @article.date = Time.now
   @article.author = @logged_in.name
   @article.author_image_url = @logged_in.image
-  @article.tags = params[:tags].split(',')
+  @article.tags = params[:tags].downcase.delete(" ").split(',')
   @article.save
+  
+  #extract links out of the text too!
+  doc.search("//a").each do |link|
+    nLink = Link.where(:url => link.attributes['href'])
+    nLink = Link.new unless nLink
+    nlink.url = link.attributes['href']
+    nLink.text = link.inner_html
+    nLink.article_id = @article._id
+    nLink.article = @article.title
+    nLink.save
+  end
 
   redirect "/article/#{@article.id}"
 end
@@ -142,20 +205,51 @@ get '/article/:id/delete' do |id|
   redirect '/'
 end
 post '/article/:id' do |id|
+  redirect '/' unless @logged_in.role == "admin"
   @article = Article.where(:id => id).first()
   @article.title = params[:title]
   @article.text = params[:text]
+  doc = Hpricot(@article.text)
+  index = 1
+  extract = ""
+  doc.search("//p").each do |element|
+    extract += element.to_html
+    break if index == 2
+    index += 1
+  end
+  @article.extract = extract
   @article.author = @logged_in.name
   @article.author_image_url = @logged_in.image
-  @article.tags = params[:tags].split(',')
+  @article.tags = params[:tags].downcase.delete(" ").split(',')
   @article.save
+  #extract links out of the text too!
+  doc.search("//a").each do |link|
+    nLink = Link.where(:url => link.attributes['href'])
+    nLink = Link.new unless nLink
+    nlink.url = link.attributes['href']
+    nLink.text = link.inner_html
+    nLink.article_id = @article._id
+    nLink.article = @article.title
+    nLink.save
+  end
   redirect "/article/#{@article.id}"
 end
 get '/article/:id' do |id|
+  @tags = TagCloud.build.find()
+  @thash = []
+  @tags.each do |tag|
+    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  end
   @article = Article.where(:id => id).first()
   haml :view_article, :ugly => true
 end
 get '/' do
+  @tags = TagCloud.build.find()
+  @thash = []
+  @tags.each do |tag|
+    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  end
+  
   @articles = Article.sort(:date.desc).all()
   @home = "active"
   haml :index, :ugly => true

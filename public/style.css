@@ -2,6 +2,9 @@ a:link {text-decoration: none}
 a:visited {text-decoration: none}
 a:active {text-decoration: none}
 a:hover {text-decoration: underline;}
+.aright {
+  text-align: right;
+}
 pre {
   white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
   white-space: -pre-wrap; /* Opera */

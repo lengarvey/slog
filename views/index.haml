@@ -14,7 +14,9 @@
         %h3.quiet Tagged with...
         =article.first_three_tags
     %div{:class => 'span-11'}
-      %p.extract 
-        #{article.html_text}
+      %div#extract{:class => 'span-11 last'} #{article.extract_or_text}
+      %h4#read_more{:class => 'aright span-3 prepend-8 last'} 
+        %a{:href => "/article/#{article.id}"}read more...
+
 
 
