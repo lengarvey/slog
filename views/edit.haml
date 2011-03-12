@@ -1,0 +1,6 @@
+%form{:method => 'post', :action => "/article/#{@article.id}"}
+  %input.title{:type => 'text', :name => 'title', :class => 'span-16 last', :value => "#{@article.title}"}
+  %textarea.text{:name => 'text', :wrap => 'soft', :class => 'span-16 last'} #{@article.text}
+  %input.title{:type => 'text', :name => 'tags', :class => 'span-16 last', :value => "#{@article.tags.join(',')}"}
+  %input{:type => 'submit'}
+

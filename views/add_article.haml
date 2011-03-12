@@ -1,9 +1,6 @@
 %form{:method => 'post', :action => '/article/add'}
-  %label.title{:for => 'title'} Title
-  %input.title{:type => 'text', :name => 'title'}
-  %br
-  %label.text{:for => 'text'} Text
-  %textarea.text{:name => 'text', :cols => 80, :rows => 10}
-  %br
+  %input.title{:type => 'text', :name => 'title', :class => 'span-16 last'}
+  %textarea.text{:name => 'text', :wrap => 'soft', :class => 'span-16 last'}
+  %input.title{:type => 'text', :name => 'tags', :class => 'span-16 last'}
   %input{:type => 'submit'}
 

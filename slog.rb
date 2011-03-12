@@ -4,13 +4,24 @@ require 'haml'
 require '/home/artega/dev/sloggr/lib/partials.rb'
 require 'mongo_mapper'
 require 'omniauth'
-require 'bb-ruby'
+require 'sinatra/session'
+require 'rack/gridfs'
+require 'joint'
+
+#use Rack::GridFS, :hostname => 'localhost', :port => 27017, :database => 'slog', :prefix => 'gridfs'
 
 use OmniAuth::Builder do
   provider :facebook, '187715447931456', '2e8c1a8f5d73bc8c438779c39e5f57c9'
 end
 
 MongoMapper.database = 'slog'
+
+class Asset
+  include MongoMapper::Document
+  plugin Joint # add the plugin
+
+  attachment :file # declare an attachment named image
+end
 
 class User
   include MongoMapper::Document
@@ -35,26 +46,52 @@ class Article
   key :title, String
   key :text, String
   key :date, Time
-
-  key :author, String
-
+  def nice_date
+    self.date.strftime("%Y-%m-%d");
+  end
+  key :author, String # id of user
+  key :author_image_url, String
+  def get_author_image
+    return self.author_image_url || "empty_user_image.jpg"
+  end
   key :tags, Array
+  def first_three_tags
+    return self.tags[0..2].join(',')
+  end
   def html_text
-    text.bbcode_to_html
+    text
   end
 end
 
 helpers Sinatra::Partials
-
-enable :sessions
-enable :run
+set :session_fail, '/auth/facebook'
+set :session_secret, 'Il0ve5dllje%%4r'
 
 before do
-  if session['user'] then
+  if session? then
     @logged_in = User.where(:id => session['user']).first()
   end
 end
 
+get '/assets/:id' do |id|
+  asset = Asset.where(:id => id).first()
+  file = asset.file
+  [200, {'Content-Type' => file.content_type}, [file.read]]
+end
+
+post '/upload' do
+  #redirect '/' unless @logged_in and @logged_in.role == "admin"
+  #params.to_s
+  asset = Asset.create(:file => params[:file][:tempfile])
+  asset.save
+  "/gridfs/#{asset.id}"
+  #redirect request.referrer
+end
+
+get '/logout' do
+  session_end!
+  redirect '/'
+end
 get '/auth/:provider/callback' do
   auth = request.env['omniauth.auth']
   @user = User.where(:provider => auth['provider'], :uid => auth['uid']).first()
@@ -68,10 +105,9 @@ get '/auth/:provider/callback' do
   @user.nickname = usr_info['nickname'] if usr_info['nickname']
   @user.first_name = usr_info['first_name'] if usr_info['first_name']
   @user.last_name = usr_info['last_name'] if usr_info['last_name']
-  @user.image = usr_info['image'] if usr_info['image']
-
+  @user.image = "https://graph.facebook.com/#{@user.uid}/picture"
   @user.save
-
+  session_start!
   session['user'] = @user.id
   redirect '/' if @user
 
@@ -79,7 +115,7 @@ end
 
 get '/article/add' do
   redirect '/' unless @logged_in.role == "admin"
-  haml :add_article
+  haml :add_article, :layout => :add_layout
 end
 post '/article/add' do
   redirect '/' unless @logged_in.role == "admin"
@@ -87,32 +123,44 @@ post '/article/add' do
   @article.title = params[:title]
   @article.text = params[:text]
   @article.date = Time.now
+  @article.author = @logged_in.name
+  @article.author_image_url = @logged_in.image
+  @article.tags = params[:tags].split(',')
   @article.save
 
-  haml :article
+  redirect "/article/#{@article.id}"
+end
+get '/article/:id/edit' do |id|
+  redirect '/' unless @logged_in.role == "admin"
+  @article = Article.where(:id => id).first()
+  haml :edit, :layout => :add_layout 
+end
+get '/article/:id/delete' do |id|
+  redirect '/' unless @logged_in.role == "admin"
+  @article = Article.where(:id => id).first()
+  @article.delete
+  redirect '/'
+end
+post '/article/:id' do |id|
+  @article = Article.where(:id => id).first()
+  @article.title = params[:title]
+  @article.text = params[:text]
+  @article.author = @logged_in.name
+  @article.author_image_url = @logged_in.image
+  @article.tags = params[:tags].split(',')
+  @article.save
+  redirect "/article/#{@article.id}"
 end
 get '/article/:id' do |id|
   @article = Article.where(:id => id).first()
-  haml :view_article
-end
-post '/article/:id/comment' do |id|
-  @article = Article.where(:id => id).first()
-  pass unless @article
-  comment = Comment.new
-  comment.author = params[:author]
-  comment.date = Time.now
-  comment.text = params[:comment]
-  @article.comments << comment
-  @article.save
-  haml :view_article
-
+  haml :view_article, :ugly => true
 end
 get '/' do
   @articles = Article.sort(:date.desc).all()
   @home = "active"
-  haml :index
+  haml :index, :ugly => true
 end
 
 get '/*' do
-  "Blank page"
+  redirect '/'
 end

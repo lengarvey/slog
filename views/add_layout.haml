@@ -1,24 +1,23 @@
 %html
-  %title Bottled Goodess - Programming uncorked
   <link rel="stylesheet" href="/screen.css" type="text/css" media="screen, projection">
   <link rel="stylesheet" href="/print.css" type="text/css" media="print">  
   <link rel="stylesheet" href="/style.css" type="text/css" media="screen, projection, print">  
-  <link type="text/css" rel="stylesheet" href="/sh/sh_vim-dark.min.css">
-  <script type="text/javascript" src="/sh/sh_main.min.js"></script>
-  <script type="text/javascript" src="/sh/sh_ruby.min.js"></script>
   <!--[if lt IE 8]><link rel="stylesheet" href="/ie.css" type="text/css" media="screen, projection"><![endif]-->
+  <link href="/uploadify/uploadify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="/uploadify/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="/uploadify/swfobject.js"></script>
+  <script type="text/javascript" src="/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
   :javascript
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-22006053-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-
-  %body{:onload=>'sh_highlightDocument();'}
+    $(document).ready(function() {
+      $('#file_upload').uploadify({
+        'uploader'  : '/uploadify/uploadify.swf',
+        'script'    : '/upload',
+        'cancelImg' : '/uploadify/cancel.png',
+        'folder'    : '/uploads',
+        'auto'      : true
+      });
+    });
+  %body
     .container
       %div#banner{:class => 'span-18'}
         %img{:src => '/bg.jpg'}  
@@ -44,12 +43,13 @@
               %a{:href => '/archives'} Archives
         =yield
       %div#rightbar{:class => 'span-6 last quiet'}
-        %h3 About
-        %p.about
-          Authored by Leonard Garvey a jack-of-all-trades programmer, web developer, dba and analyst with something to share. I love snowboarding and riding my GSXR-750.
-        %h3.hide Tag Cloud
-        .cloud
-
+        %h3 File Assets
+        %h3 Upload
+        <form enctype="multipart/form-data" action="/upload" method="POST">
+        <input type="hidden" name="MAX_FILE_SIZE" value="100000" />
+        <input id="file_upload2" name="file" type="file" />
+        <input type="submit" value="Upload File" />
+        </form>
     %div#bottom
       .container
         %div{:class => 'span-6 append-12'}
@@ -66,7 +66,7 @@
         %div{:class => 'span-6 last'}
           %ul.bottommenu
             %li
-              %a.hide{:href=>''} Follow on Twitter
+              %a{:href=>''} Follow on Twitter
             %li
               %a{:href=>'http://www.sinatrarb.com'} Powered by Sinatra
             %li
