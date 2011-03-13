@@ -15,8 +15,9 @@
         =article.first_three_tags
     %div{:class => 'span-11'}
       %div#extract{:class => 'span-11 last'} #{article.extract_or_text}
-      %h4#read_more{:class => 'aright span-3 prepend-8 last'} 
-        %a{:href => "/article/#{article.id}"}read more...
+      %h4#read_more{:class => 'aright span-5 prepend-6 last'} 
+        %a{:href => "/article/#{article.id}", :class => 'border'}Read more
+        %a{:href => "/article/#{article.id}#disqus_thread"}
 
 
 
