@@ -3,23 +3,21 @@ require 'sinatra'
 require 'haml'
 require_relative 'lib/partials.rb'
 require 'mongo_mapper'
-require 'omniauth'
-require 'sinatra/session'
 require 'rack/gridfs'
 require 'joint'
 require 'hpricot'
 require_relative 'routes.rb'
 
-use OmniAuth::Builder do
-  provider :facebook, '187715447931456', '2e8c1a8f5d73bc8c438779c39e5f57c9'
-end
 
 MongoMapper.database = 'slog'
+
 
 class Asset
   include MongoMapper::Document
   plugin Joint # add the plugin
-
+  def url
+    return "/assets/#{self._id}"
+  end
   attachment :file # declare an attachment named image
 end
 
@@ -41,7 +39,7 @@ class User
 end
 class Link
   include MongoMapper::Document
-  key :url, String
+  key :href, String
   key :text, String
   key :article_id, String
   key :article, String
@@ -95,12 +93,12 @@ end
 
 
 helpers Sinatra::Partials
-set :session_fail, '/auth/facebook'
-set :session_secret, 'Il0ve5dllje%%4r'
+#set :session_fail, '/auth/facebook'
+#set :session_secret, 'Il0ve5dllje%%4r'
 
-before do
-  if session? then
-    @logged_in = User.where(:id => session['user']).first()
-  end
-end
-
+#before do
+#  if session? then
+#    @logged_in = User.where(:id => session['user']).first()
+#  end
+#end
+#

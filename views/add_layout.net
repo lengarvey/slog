@@ -31,18 +31,19 @@
               %a{:href => '/archives'} Archives
         =yield
       %div#rightbar{:class => 'span-6 last quiet'}
-        %h3{:class => 'span-6 last'} File Assets
+        %h3 File Assets
+        - @assets.each do |asset|
+          %a{:href => "#{asset.url}"} #{asset.file.name}
+        %h3 Upload
         <input id="file_upload" name="file" type="file" />
         :javascript
           $(function() {
             $('#file_upload').change(function() {
               $(this).upload('/upload', function(res) {
-                $(res).insertAfter(this);
-              }, 'html');
+                  alert('File uploaded');
+              }, 'json');
             });
           });
-        - @assets.each do |asset|
-          =partial :asset, :locals => {:asset => asset}  
     %div#bottom
       .container
         %div{:class => 'span-6 append-12'}

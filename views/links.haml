@@ -1,0 +1,8 @@
+%h3 Blogs and things
+%div{:class => 'span-16 last quiet'}
+%h3 Stuff I've Linked to...
+-@links.each do |link|
+  %h4{:class => 'span-16 last quiet'}
+    %a{:href => "#{link.href}"} #{link.text}
+    posted in 
+    %a{:href => "/article/#{link.article_id}"} #{link.article} 

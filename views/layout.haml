@@ -1,5 +1,5 @@
 %html
-  %title Bottled Goodess - Programming uncorked
+  %title #{@title} 
   <link rel="stylesheet" href="/screen.css" type="text/css" media="screen, projection">
   <link rel="stylesheet" href="/print.css" type="text/css" media="print">  
   <link rel="stylesheet" href="/style.css" type="text/css" media="screen, projection, print">  
@@ -45,7 +45,7 @@
           %ul.nav
             %li{:class=>"#{@home}"}
               %a{:href => '/'} Home
-            %li{:class=>"#{@links}"}
+            %li{:class=>"#{@link}"}
               %a{:href => '/links'} Links
             %li{:class=>"#{@archives}"}
               %a{:href => '/archives'} Archives
@@ -73,7 +73,7 @@
         %div{:class => 'span-6 last'}
           %ul.bottommenu
             %li
-              %a.hide{:href=>''} Follow on Twitter
+              %a{:href=>'http://http://twitter.com/lgarvey'} Follow on Twitter
             %li
               %a{:href=>'http://www.sinatrarb.com'} Powered by Sinatra
             %li
