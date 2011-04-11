@@ -1,12 +1,13 @@
+$LOAD_PATH << File.dirname(__FILE__)
 require 'rubygems'
 require 'sinatra'
 require 'haml'
-require_relative 'lib/partials.rb'
+require 'lib/partials.rb'
 require 'mongo_mapper'
 require 'rack/gridfs'
 require 'joint'
 require 'hpricot'
-require_relative 'routes.rb'
+require 'routes.rb'
 
 
 MongoMapper.database = 'slog'
