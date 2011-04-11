@@ -9,7 +9,6 @@ require 'joint'
 require 'hpricot'
 require 'routes.rb'
 
-
 MongoMapper.database = 'slog'
 
 
@@ -22,21 +21,9 @@ class Asset
   attachment :file # declare an attachment named image
 end
 
-class User
-  include MongoMapper::Document
-
-  key :provider, String
-  key :uid, String
+class MmUser
   key :name, String
-
-  key :nickname, String
-
-  key :email, String
-  key :first_name, String
-  key :last_name, String
   key :image, String #url of their avatar
-
-  key :role, String
 end
 class Link
   include MongoMapper::Document
@@ -55,6 +42,8 @@ class Article
   key :author_image_url, String
   key :tags, Array
   key :extract, String
+
+  
   def extract_or_text
     extract || text
   end
@@ -86,8 +75,11 @@ class Article
 end
 class TagCloud
   def self.build
+    
+    
     map ="function(){this.tags.forEach(function(tag){emit(tag, 1);});}"
     reduce = "function(prev, current) {var count = 0;for (index in current) {count += current[index];}return count;}"
+    
     Article.collection.map_reduce(map, reduce, :out => {:merge => 'tag_mr_results'})
   end
 end

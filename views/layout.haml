@@ -30,16 +30,16 @@
       %div#banner{:class => 'span-18'}
         %img{:src => '/bg.jpg'}  
       %div#login{:class => 'span-6 last'}
-        - if @logged_in then
+        - if logged_in? then
           %ul.login
-            %li.border Welcome #{@logged_in.name}
+            %li.border Welcome #{current_user.name}
             %li
               %a{:href => '/logout'} Logout
         - else
           %ul.login
             %li.border Welcome Guest
             %li
-              %a{:href => '/auth/facebook'} Login
+              %a{:href => '/login'} Login
       %div#content{:class=>'span-17 prepend-1 border'}
         %div#menu{:class => 'span-6 prepend-10 last'}
           %ul.nav
@@ -67,7 +67,7 @@
               %a{:href=>'/'} About  
             %li
               %a{:href=>'/'} Archives 
-            - if @logged_in and @logged_in.role == "admin" then
+            - if current_user and current_user.admin? then
               %li
                 %a{:href=>'/article/add'} Add an Article
         %div{:class => 'span-6 last'}

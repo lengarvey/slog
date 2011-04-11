@@ -1,6 +1,12 @@
 require 'sinatra-authentication'
 use Rack::Session::Cookie, :secret => 'Sl0ggr r0xx0r your s0xx0rz. All day every d4y!'
+set :sinatra_authentication_view_path, Pathname(__FILE__).dirname.expand_path + "auth_views/"
 
+after '/signup' do
+  if request.post? && @user.valid && @user.id then
+    puts "after signup"
+  end
+end
 
 # assets and upoading
 # access an asset
@@ -13,34 +19,14 @@ end
 
 # upload an asset
 post '/upload' do
-  redirect '/' unless @logged_in and @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   asset = Asset.create(:file => params[:file][:tempfile])
   asset.file_name = params[:file][:filename]
   asset.save
   partial :asset, :locals => {:asset => asset}
 end
 
-# login /logout
-#get '/auth/:provider/callback' do
-#  auth = request.env['omniauth.auth']
-#  @user = User.where(:provider => auth['provider'], :uid => auth['uid']).first()
-#
-#  @user = User.new unless @user
-#  @user.provider = auth['provider']
-#  @user.uid = auth['uid']
-#  usr_info = auth['user_info']
-#  @user.name = usr_info['name'] if usr_info['name']
-#  @user.email = usr_info['email'] if usr_info['email']
-#  @user.nickname = usr_info['nickname'] if usr_info['nickname']
-#  @user.first_name = usr_info['first_name'] if usr_info['first_name']
-#  @user.last_name = usr_info['last_name'] if usr_info['last_name']
-#  @user.image = "https://graph.facebook.com/#{@user.uid}/picture"
-#  @user.save
-#  session_start!
-#  session['user'] = @user.id
-#  redirect '/' if @user
-#
-#end
 
 
 def add_or_edit(params, id = nil)
@@ -62,8 +48,8 @@ def add_or_edit(params, id = nil)
   end
   article.extract = extract
   article.date = Time.now unless id
-  article.author = @logged_in.name
-  article.author_image_url = @logged_in.image
+  article.author = current_user.name
+  article.author_image_url = current_user.image
   article.tags = params[:tags].downcase.delete(" ").split(',')
   article.save
   
@@ -108,7 +94,8 @@ end
 # article display, adding, editing, deleting
 #
 post '/article/add' do
-  redirect '/' unless @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   @article = add_or_edit(params)
   redirect "/article/#{@article.id}"
 end
@@ -124,23 +111,27 @@ get '/article/:id' do |id|
   haml :view_article, :ugly => true
 end
 get '/article/add' do
-  redirect '/' unless @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   @assets = Asset.sort(:id.desc).all()
   haml :add_article, :layout => :add_layout
 end
 post '/article/:id' do |id|
-  redirect '/' unless @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   @article = add_or_edit(params, id)
   redirect "/article/#{@article.id}"
 end
 get '/article/:id/edit' do |id|
-  redirect '/' unless @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   @assets = Asset.sort(:id.desc).all()
   @article = Article.where(:id => id).first()
   haml :edit, :layout => :add_layout 
 end
 get '/article/:id/delete' do |id|
-  redirect '/' unless @logged_in.role == "admin"
+  login_required
+  redirect '/' unless current_user.admin? 
   @article = Article.where(:id => id).first()
   @article.delete
   redirect '/'
