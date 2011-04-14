@@ -1,5 +1,5 @@
 require 'sinatra-authentication'
-use Rack::Session::Cookie, :secret => 'Sl0ggr r0xx0r your s0xx0rz. All day every d4y!'
+use Rack::Session::Cookie, :secret => 'CHANGEME'
 set :sinatra_authentication_view_path, Pathname(__FILE__).dirname.expand_path + "auth_views/"
 
 after '/signup' do
@@ -30,47 +30,40 @@ end
 
 
 def add_or_edit(params, id = nil)
-  if id then
-    article = Article.where(:id => id).first() if id
+  article = if id
+    Article.where(:id => id).first
   else
-    article = Article.new unless article
+    Article.new
   end
 
   article.title = params[:title]
   article.text = params[:text]
   doc = Hpricot(article.text)
   index = 1
-  extract = ""
-  doc.search("//p").each do |element|
-    extract += element.to_html
-    break if index == 2
-    index += 1
-  end
-  article.extract = extract
-  article.date = Time.now unless id
+  article.extract = doc.search("//p")[0..1].flatten
+
+  article.date = Time.now if article.new_record?
   article.author = current_user.name
   article.author_image_url = current_user.image
   article.tags = params[:tags].downcase.delete(" ").split(',')
-  article.save
+  article.save!
   
   #extract links out of the text too!
   doc.search("//a").each do |link|
-    nLink = Link.where(:href => link.attributes['href']).first()
-    nLink = Link.new unless nLink
-    nLink.href = link.attributes['href']
-    nLink.text = link.inner_html
-    nLink.article_id = article._id
-    nLink.article = article.title
-    nLink.save
+    nlink = Link.where(:href => link.attributes['href']).first() || Link.new
+    nlink.href = link.attributes['href']
+    nlink.text = link.inner_html
+    nlink.article_id = article._id
+    nlink.article = article.title
+    nlink.save!
   end
-  return article
+  article
 end
 
 get '/archives' do
   @tags = TagCloud.build.find()
-  @thash = []
-  @tags.each do |tag|
-    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  @thash = @tags.map do |tag|
+    {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
   end
   
   @articles = Article.sort(:date.desc).all()
@@ -82,9 +75,8 @@ end
 get '/links' do
   @links = Link.sort(:id.desc).all();
   @tags = TagCloud.build.find()
-  @thash = []
-  @tags.each do |tag|
-    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  @thash = @tags.map do |tag|
+    {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
   end
   @link = "active"
   @title = "bottledup.net links - symbolic thirst quenching"
@@ -140,9 +132,8 @@ end
 # index and tags
 get '/' do
   @tags = TagCloud.build.find()
-  @thash = []
-  @tags.each do |tag|
-    @thash << {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
+  @thash = @tags.map do |tag|
+    {"text" => "#{tag['_id']}", "weight" => (tag['value'] * 10).to_i, "url" => "/tag/#{tag['_id']}"}
   end
   
   @articles = Article.sort(:date.desc).all()

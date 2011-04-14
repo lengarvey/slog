@@ -65,7 +65,7 @@ class Article
     text
   end
   def nice_date
-    self.date.strftime("%Y-%m-%d");
+    date.strftime("%Y-%m-%d") rescue ''
   end
   def get_author_image
     return self.author_image_url || "empty_user_image.jpg"
